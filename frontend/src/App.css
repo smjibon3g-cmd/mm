@@ -1,0 +1,631 @@
+/* Variables for consistent styling */
+:root {
+    --primary-color: #4CAF50; /* Green */
+    --secondary-color: #2196F3; /* Blue */
+    --accent-color: #FFC107; /* Amber */
+    --text-color: #333;
+    --background-color: #f0f2f5; /* Light gray */
+    --card-background: #fff;
+    --border-color: #ddd;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --success-color: #4CAF50;
+    --error-color: #f44336;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif; /* Assuming Roboto or similar sans-serif */
+    margin: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Overall App Layout */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: var(--background-color);
+}
+
+/* Sidebar Styles (already decent, but ensure consistency) */
+.sidebar {
+    width: 250px;
+    background-color: var(--card-background);
+    padding: 20px;
+    box-shadow: 2px 0 5px var(--shadow-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 10px;
+}
+
+.sidebar-menu li a, .sidebar-button {
+    display: block;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: var(--text-color);
+    border-radius: 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-weight: 500;
+}
+
+.sidebar-menu li a:hover, .sidebar-button:hover {
+    background-color: var(--primary-color);
+    color: var(--card-background);
+}
+
+.sidebar-menu li a.active, .sidebar-button.active {
+    background-color: var(--primary-color);
+    color: var(--card-background);
+    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3); /* Shadow for active state */
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Space between icon and text */
+}
+
+.sidebar-link svg {
+  font-size: 1.1em; /* Icon size */
+  min-width: 20px; /* Ensure alignment */
+}
+
+
+/* Page Content */
+.page {
+    background-color: var(--card-background);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px var(--shadow-color);
+    margin-bottom: 20px; /* Add some margin between pages if they stack */
+}
+
+.page h1 {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 2rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.page h1 svg {
+    margin-right: 10px;
+    font-size: 2.2rem;
+}
+
+/* Forms */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px; /* Adjust as needed */
+    margin: 0 auto; /* Center forms */
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--background-color);
+}
+
+.input-group {
+    margin-bottom: 10px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.input-group input[type="text"],
+.input-group input[type="password"],
+.input-group input[type="email"],
+.input-group input[type="number"],
+.input-group input[type="date"],
+.input-group textarea,
+.input-group select,
+form input[type="text"],
+form input[type="password"],
+form input[type="email"],
+form input[type="number"],
+form input[type="date"],
+form textarea,
+form select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box; /* Include padding in width */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-group input:focus,
+form input:focus,
+form textarea:focus,
+form select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+    outline: none;
+}
+
+/* Buttons */
+button, .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 10px;
+}
+
+button:hover, .btn-primary:hover {
+    background-color: #43A047; /* Darker green */
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+/* Messages */
+.message {
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.message.success {
+    background-color: #e8f5e9; /* Light green */
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+.message.error {
+    background-color: #ffebee; /* Light red */
+    color: var(--error-color);
+    border: 1px solid var(--error-color);
+}
+
+/* Auth specific styles */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--background-color);
+}
+
+.auth-card {
+    background-color: var(--card-background);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px var(--shadow-color);
+    text-align: center;
+    max-width: 450px;
+    width: 100%;
+}
+
+.auth-card h2 {
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-size: 2rem;
+}
+
+.auth-switch {
+    margin-top: 20px;
+    font-size: 0.95rem;
+}
+
+.auth-switch a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
+/* Existing styles from original App.css, ensure they are compatible or removed */
+.container {
+    display: flex;
+    width: 100%;
+}
+/* Remove this .container as app-container is used now */
+
+/* Dashboard Summary */
+.dashboard-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.summary-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.summary-card h3 {
+    margin: 0 0 5px; /* Reduced margin */
+    color: var(--secondary-color);
+    font-size: 1.1rem; /* Slightly reduced font size */
+    transition: color 0.3s ease;
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Align items vertically */
+    justify-content: center; /* Center horizontally */
+}
+
+.summary-card h3 svg {
+    margin-right: 5px; /* Space between icon and text */
+}
+
+.summary-card:hover h3 {
+    color: var(--primary-color);
+}
+
+.summary-card p {
+    font-size: 1.8rem; /* Reduced font size */
+    font-weight: bold;
+    color: var(--primary-color);
+    transition: transform 0.3s ease;
+}
+
+.summary-card:hover p {
+    transform: scale(1.05);
+}
+
+/* Dashboard Details */
+.dashboard-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.personal-info, .bazar-dates {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+.personal-info h2, .bazar-dates h2 {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+}
+
+/* Tables */
+.all-member-info table,
+.meal-form table,
+.details-section table,
+.all-member-list table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: var(--card-background);
+    border-radius: 8px;
+    overflow: hidden; /* Ensures rounded corners apply to table */
+}
+
+.all-member-info th, .all-member-info td,
+.meal-form th, .meal-form td,
+.details-section th, .details-section td,
+.all-member-list th, .all-member-list td {
+    border: 1px solid var(--border-color);
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.all-member-info th,
+.meal-form th,
+.details-section th,
+.all-member-list th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.all-member-info tr:nth-child(even),
+.meal-form tr:nth-child(even),
+.details-section tr:nth-child(even),
+.all-member-list tr:nth-child(even) {
+    background-color: #f9f9f9; /* Light stripe for readability */
+}
+
+.all-member-info tr:hover,
+.meal-form tr:hover,
+.details-section tr:hover,
+.all-member-list tr:hover,
+.other-costs-table tr:hover {
+    background-color: #f1f1f1;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+/* Specific form options buttons */
+.add-member-options,
+.add-meal-options,
+.add-cost-options,
+.active-month-options {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.dashboard-options {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.add-member-options button,
+.add-meal-options button,
+.add-cost-options button,
+.active-month-options button,
+.dashboard-options button {
+    flex: 1;
+    background-color: var(--secondary-color);
+}
+
+.add-member-options button:hover,
+.add-meal-options button:hover,
+.add-cost-options button:hover,
+.active-month-options button:hover {
+    background-color: #1976D2; /* Darker blue */
+}
+
+/* Member form specific */
+.member-form form {
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+/* Deposit form specific */
+.deposit-form {
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+/* Meal form specific */
+.meal-form form {
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+.meal-form input[type="number"] {
+    width: 80px; /* Smaller width for meal counts */
+    text-align: center;
+}
+
+/* Cost form specific */
+.cost-form form {
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+/* Details section */
+.details-section h2 {
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+/* Auth container (from original auth.css, integrated here) */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--background-color);
+}
+
+.auth-card {
+    background-color: var(--card-background);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px var(--shadow-color);
+    text-align: center;
+    max-width: 450px;
+    width: 100%;
+}
+
+.auth-card h2 {
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-size: 2rem;
+}
+
+.auth-switch {
+    margin-top: 20px;
+    font-size: 0.95rem;
+}
+
+.auth-switch a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
+.highlight {
+  background-color: yellow;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-in-out forwards;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+.highlight-deposit {
+  background-color: #e0f7fa; /* Light cyan */
+  font-weight: bold;
+}
+
+.other-costs-info {
+  margin-top: 2rem;
+}
+
+.other-costs-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: var(--card-background);
+  border-radius: 8px;
+  overflow: hidden; /* Ensures rounded corners apply to table */
+}
+
+.other-costs-table th,
+.other-costs-table td {
+  border: 1px solid var(--border-color);
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.other-costs-table th {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.other-costs-table tr:nth-child(even) {
+  background-color: #f9f9f9; /* Light stripe for readability */
+}
+
+.other-costs-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.personal-info-card {
+  background-color: var(--card-background);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+.personal-info-card h2 {
+  color: var(--primary-color);
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.personal-info-card, .bazar-dates, .all-member-info table, .other-costs-table {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.personal-info-card:hover, .bazar-dates:hover, .all-member-info table:hover, .other-costs-table:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.mess-details-card {
+  background-color: var(--card-background);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  margin-bottom: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mess-details-card:hover {
+  transform: scale(1.01);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.mess-details-card h2 {
+  color: var(--primary-color);
+  margin: 0;
+  font-size: 1.4rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.mess-details-card h2 svg {
+  font-size: 1.6rem; /* Adjust icon size */
+  margin-right: 8px;
+}
+
+.personal-info-card p {
+  font-size: 1.1rem;
+  margin: 10px 0;
+}
