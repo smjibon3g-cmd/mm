@@ -72,7 +72,7 @@ function AllMember() {
             setCurrentUser(data.updated_user);
 
             // Refresh the member list to show the new roles for everyone
-            fetchMembers();
+            await fetchMembers();
         } else {
             throw new Error(data.error || 'Failed to elect manager.');
         }

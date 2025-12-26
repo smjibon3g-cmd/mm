@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import LoadingSpinner from './LoadingSpinner';
+import { v4 as uuidv4 } from 'uuid';
 
 function AddMeal() {
   const [showForm, setShowForm] = useState(''); // 'all-member', 'single-member', 'meal-request'
@@ -140,7 +141,7 @@ function AddMeal() {
 
         if (totalMeals > 0) { // Only add if there's at least one meal
           const newMeal = {
-            "Meal ID": Date.now().toString() + memberId, // Unique ID for each meal entry
+            "Meal ID": uuidv4(), // Unique ID for each meal entry
             "Date": mealDateAll,
             "Member ID": memberId,
             "Breakfast": breakfast,
@@ -203,7 +204,7 @@ function AddMeal() {
 
     const totalMeals = breakfast + lunch + dinner;
     const newMeal = {
-      "Meal ID": Date.now().toString() + singleMealMember, // Unique ID for each meal entry
+      "Meal ID": uuidv4(), // Unique ID for each meal entry
       "Date": mealDateSingle,
       "Member ID": singleMealMember,
       "Breakfast": breakfast,

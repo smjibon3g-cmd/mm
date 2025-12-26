@@ -131,6 +131,63 @@ function ActiveMonthDetails() {
   const contentRef = useRef();
 
   const handleExportExcel = () => {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
+    const filterByCurrentMonth = (item) => {
+      const itemDate = new Date(item['Date']);
+      return itemDate.getMonth() === currentMonth && itemDate.getFullYear() === currentYear;
+    };
+
+    const currentMonthMeals = meals.filter(filterByCurrentMonth);
+    const currentMonthDeposits = deposits.filter(filterByCurrentMonth);
+    const currentMonthCosts = costs.filter(filterByCurrentMonth);
+
+    const memberMap = members.reduce((acc, member) => {
+      acc[member['Member ID']] = member['Name'];
+      return acc;
+    }, {});
+
+    const mealsByDateAndMember = {};
+    currentMonthMeals.forEach(meal => {
+      const date = meal['Date'];
+      const memberId = meal['Member ID'];
+      if (!mealsByDateAndMember[date]) {
+        mealsByDateAndMember[date] = {};
+      }
+      mealsByDateAndMember[date][memberId] = {
+        breakfast: parseFloat(meal['Breakfast']),
+        lunch: parseFloat(meal['Lunch']),
+        dinner: parseFloat(meal['Dinner']),
+        totalMeals: parseFloat(meal['Total Meals'])
+      };
+    });
+
+    const uniqueDates = Object.keys(mealsByDateAndMember).sort();
+
+    const allMemberIds = members.map(member => member['Member ID']);
+
+    const memberTotals = allMemberIds.map(memberId => {
+      let totalBreakfast = 0;
+      let totalLunch = 0;
+      let totalDinner = 0;
+
+      uniqueDates.forEach(date => {
+        if (mealsByDateAndMember[date] && mealsByDateAndMember[date][memberId]) {
+          totalBreakfast += mealsByDateAndMember[date][memberId].breakfast;
+          totalLunch += mealsByDateAndMember[date][memberId].lunch;
+          totalDinner += mealsByDateAndMember[date][memberId].dinner;
+        }
+      });
+
+      return {
+        memberId,
+        totalBreakfast,
+        totalLunch,
+        totalDinner,
+      };
+    });
+
     const wb = XLSX.utils.book_new();
 
     // Meal Details
@@ -144,7 +201,7 @@ function ActiveMonthDetails() {
     uniqueDates.forEach(date => {
       const row = [date];
       allMemberIds.forEach(memberId => {
-        const meal = mealsByDateAndMember[date][memberId];
+        const meal = mealsByDateAndMember[date]?.[memberId];
         row.push(meal ? meal.breakfast : 0, meal ? meal.lunch : 0, meal ? meal.dinner : 0);
       });
       mealDetailsData.push(row);

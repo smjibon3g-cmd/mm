@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import LoadingSpinner from './LoadingSpinner';
+import { v4 as uuidv4 } from 'uuid';
 
 function AddCost() {
   const [showForm, setShowForm] = useState('meal-cost'); // 'meal-cost', 'other-cost'
@@ -69,7 +70,7 @@ function AddCost() {
     }
 
     const newCost = {
-      "Cost ID": Date.now().toString(),
+      "Cost ID": uuidv4(),
       "Date": mealCostDate,
       "Description": mealCostDetails,
       "Amount": mealCostAmount,
@@ -132,7 +133,7 @@ function AddCost() {
     }
 
     const newCost = {
-      "Cost ID": Date.now().toString(),
+      "Cost ID": uuidv4(),
       "Date": otherCostDate,
       "Description": otherCostDetails,
       "Amount": otherCostAmount,

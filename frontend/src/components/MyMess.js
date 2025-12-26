@@ -125,11 +125,9 @@ function MyMess() {
         if (response.ok) {
           setMessage({ text: data.message, type: 'success' });
           // If the current user was the old manager, update their role in localStorage
-          if (currentUser['User ID'] === currentUser['User ID']) { // This condition is always true, should be old_manager_user_id
-            const updatedUser = { ...currentUser, 'Role': 'user' };
-            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-            setCurrentUser(updatedUser); // Update state as well
-          }
+          const updatedUser = { ...currentUser, 'Role': 'user' };
+          localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+          setCurrentUser(updatedUser); // Update state as well
           // Refresh members list to show updated roles
           const messId = currentUser['Mess ID'];
           const membersRes = await fetch(`/api/members?mess_id=${messId}`);

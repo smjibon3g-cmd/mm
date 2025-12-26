@@ -25,11 +25,13 @@ function Profile() {
 
     if (newPassword !== confirmNewPassword) {
       setMessage({ text: 'New password and confirm new password do not match.', type: 'error' });
+      setLoading(false);
       return;
     }
 
     if (!currentPassword || !newPassword) {
       setMessage({ text: 'Please fill in all password fields.', type: 'error' });
+      setLoading(false);
       return;
     }
 

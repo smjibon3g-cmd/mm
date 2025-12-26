@@ -5,6 +5,7 @@ import LoadingSpinner from './LoadingSpinner';
 function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [message, setMessage] = useState({ text: '', type: '' });
   const [usernameMessage, setUsernameMessage] = useState({ text: '', type: '' });
   const [loading, setLoading] = useState(false);
@@ -46,7 +47,7 @@ function Register() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, email }),
       });
       const data = await response.json();
 
@@ -54,6 +55,7 @@ function Register() {
         showMessage('Registration successful! Please login.', 'success');
         setUsername('');
         setPassword('');
+        setEmail('');
         setTimeout(() => {
           navigate('/login');
         }, 2000);
@@ -85,6 +87,17 @@ function Register() {
               onBlur={handleUsernameBlur}
             />
             {usernameMessage.text && <div className={`message ${usernameMessage.type}`}>{usernameMessage.text}</div>}
+          </div>
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div className="input-group">
             <label htmlFor="password">Password</label>

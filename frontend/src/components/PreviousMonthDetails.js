@@ -141,6 +141,50 @@ function PreviousMonthDetails() {
   }, [selectedMonth, messId]);
 
   const handleExportExcel = () => {
+    const memberMap = members.reduce((acc, member) => {
+      acc[member['Member ID']] = member['Name'];
+      return acc;
+    }, {});
+
+    const mealsByDateAndMember = {};
+    meals.forEach(meal => {
+      const date = meal['Date'];
+      const memberId = meal['Member ID'];
+      if (!mealsByDateAndMember[date]) {
+        mealsByDateAndMember[date] = {};
+      }
+      mealsByDateAndMember[date][memberId] = {
+        breakfast: parseFloat(meal['Breakfast']),
+        lunch: parseFloat(meal['Lunch']),
+        dinner: parseFloat(meal['Dinner']),
+        totalMeals: parseFloat(meal['Total Meals'])
+      };
+    });
+
+    const uniqueDates = Object.keys(mealsByDateAndMember).sort();
+    const allMemberIds = members.map(member => member['Member ID']);
+
+    const memberTotals = allMemberIds.map(memberId => {
+      let totalBreakfast = 0;
+      let totalLunch = 0;
+      let totalDinner = 0;
+
+      uniqueDates.forEach(date => {
+        if (mealsByDateAndMember[date] && mealsByDateAndMember[date][memberId]) {
+          totalBreakfast += mealsByDateAndMember[date][memberId].breakfast;
+          totalLunch += mealsByDateAndMember[date][memberId].lunch;
+          totalDinner += mealsByDateAndMember[date][memberId].dinner;
+        }
+      });
+
+      return {
+        memberId,
+        totalBreakfast,
+        totalLunch,
+        totalDinner,
+      };
+    });
+
     const wb = XLSX.utils.book_new();
 
     // Meal Details

@@ -65,6 +65,7 @@ function AddDeposit() {
       "Date": depositDate,
       "Member ID": depositMember,
       "Amount": depositAmount,
+      "Details": depositDetails, // Include deposit details
       "Mess ID": currentUser['Mess ID'], // Include Mess ID
       "requesting_user_id": currentUser['User ID'] // Include requesting user ID
     };

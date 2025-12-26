@@ -118,7 +118,7 @@ function AddBazarDate() {
         setStartDate('');
         setEndDate('');
         setSelectedMember('');
-        fetchBazarDates(); // Refresh bazar dates after successful submission
+        fetchBazarDates(currentUser); // Refresh bazar dates after successful submission
       } else {
         setMessage(data.error || 'Failed to add bazar date.');
         setMessageType('error');
