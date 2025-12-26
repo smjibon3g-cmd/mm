@@ -8,7 +8,6 @@ import * as XLSX from 'xlsx';
 function ActiveMonthDetails() {
   const { memberId: memberIdFromUrl } = useParams();
   const location = useLocation(); // Get location object
-  const [currentUser, setCurrentUser] = useState(null);
   const [meals, setMeals] = useState([]);
   const [members, setMembers] = useState([]);
   const [deposits, setDeposits] = useState([]); // New state for deposits
@@ -24,9 +23,7 @@ function ActiveMonthDetails() {
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (storedUser) {
-      setCurrentUser(storedUser);
-    }
+
 
     const fetchActiveMonthData = async () => {
       setLoading(true);
@@ -71,7 +68,6 @@ function ActiveMonthDetails() {
         const numberOfMealConsumers = mealConsumers.size;
 
         const mealCosts = costsData.filter(c => c.Category === 'Meal').reduce((acc, cost) => acc + parseFloat(cost['Amount']), 0);
-        const individualCosts = costsData.filter(c => c.Category === 'Individual').reduce((acc, cost) => acc + parseFloat(cost['Amount']), 0);
         const sharedMealConsumerCostsTotal = costsData.filter(c => c.Category === 'Shared - Meal Consumers').reduce((acc, cost) => acc + parseFloat(cost['Amount']), 0);
         const sharedAllMembersCostsTotal = costsData.filter(c => c.Category === 'Shared - All Members').reduce((acc, cost) => acc + parseFloat(cost['Amount']), 0);
 

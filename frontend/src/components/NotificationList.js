@@ -1,21 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import LoadingSpinner from './LoadingSpinner';
 
 function NotificationList() {
   const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [markingAsRead, setMarkingAsRead] = useState(false);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (storedUser) {
-      setCurrentUser(storedUser);
-    }
 
     const fetchNotifications = async () => {
-      setLoading(true);
       setError(null);
 
       if (!storedUser || !storedUser['User ID']) {
@@ -41,9 +33,7 @@ function NotificationList() {
       } catch (err) {
         console.error('Error fetching notifications:', err);
         setError('Failed to load notifications. Please try again.');
-        setLoading(false);
       } finally {
-        setLoading(false);
       }
     };
 

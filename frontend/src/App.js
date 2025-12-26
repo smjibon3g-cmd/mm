@@ -44,10 +44,6 @@ function App() {
     checkAuthStatus();
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('currentUser');
-    setIsAuthenticated(false);
-  };
 
   if (isLoading) {
     return <div className="loading-screen">Loading...</div>;

@@ -13,7 +13,6 @@ function AddBazarDate() {
   const [messageType, setMessageType] = useState(null);
   const [loading, setLoading] = useState(false);
   const [bazarDates, setBazarDates] = useState([]); // New state for bazar dates
-  const navigate = useNavigate();
 
   const formatDate = (dateString) => {
     const [year, month, day] = dateString.split('-');
