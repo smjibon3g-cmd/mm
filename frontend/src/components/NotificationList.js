@@ -12,7 +12,6 @@ function NotificationList() {
 
       if (!storedUser || !storedUser['User ID']) {
         setError('User not logged in.');
-        setLoading(false);
         return;
       }
 
