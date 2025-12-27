@@ -1,5 +1,5 @@
 {
-  "installCommand": "pip install -r requirements.txt",
+  "installCommand": "cd $VERCEL_PROJECT_PATH && pip install -r requirements.txt",
 
   "builds": [
     {
