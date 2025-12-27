@@ -1,6 +1,6 @@
 {
-  "installCommand": "cd frontend && npm install && pip install -r requirements.txt",
-  "buildCommand": "cd frontend && npm run build",
+  "installCommand": "pip install -r requirements.txt",
+
   "builds": [
     {
       "src": "api/**/*.py",
@@ -10,7 +10,9 @@
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build"
+        "distDir": "build",
+        "installCommand": "npm install",
+        "buildCommand": "npm run build"
       }
     }
   ],
