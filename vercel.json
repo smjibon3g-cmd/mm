@@ -1,10 +1,13 @@
 {
-  "installCommand": "npm --prefix frontend install && pip install -r ./requirements.txt",
+  "installCommand": "npm --prefix frontend install",
 
       "buildCommand": "npm run build --prefix frontend",
       "builds": [    {
       "src": "api/**/*.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "installCommand": "pip install -r $VERCEL_PROJECT_PATH/requirements.txt"
+      }
     },
     {
       "src": "frontend/package.json",
