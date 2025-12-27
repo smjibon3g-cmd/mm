@@ -10,7 +10,10 @@ import serverless_wsgi
 app = Flask(__name__)
 CORS(app)
 
-SHEET_ID = "17eQtWRrZOrEacFKlMPCEgdbIsArAF3eYVkMZ0UvN0bY"
+import os
+# ... (rest of the imports)
+
+SHEET_ID = os.environ.get("SHEET_ID", "17eQtWRrZOrEacFKlMPCEgdbIsArAF3eYVkMZ0UvN0bY")
 
 
 @app.route('/api/check_username', methods=['GET'])
