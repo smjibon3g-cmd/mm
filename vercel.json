@@ -6,7 +6,7 @@
       "src": "api/**/*.py",
       "use": "@vercel/python",
       "config": {
-        "installCommand": "pip install -r ../../requirements.txt"
+        "installCommand": "pwd && ls -F && ls -F $VERCEL_PROJECT_PATH/requirements.txt && pip install -r $VERCEL_PROJECT_PATH/requirements.txt"
       }
     },
     {
