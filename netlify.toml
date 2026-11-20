@@ -5,6 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  CI = "false"
 
 # To connect Netlify to your deployed Flask backend (e.g., Render/Railway/Fly.io),
 # uncomment the block below and replace with your backend URL:
