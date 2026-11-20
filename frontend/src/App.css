@@ -1288,11 +1288,27 @@ button:hover, .btn-primary:hover {
 
 @media (max-width: 480px) {
   .dashboard-summary {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .dashboard-summary .summary-card:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .summary-card {
+    padding: 14px 10px;
   }
 
   .summary-card p {
     font-size: var(--font-lg);
+    margin: 4px 0 0;
+  }
+
+  .kpi-header {
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 4px;
   }
 
   .page h1 {
