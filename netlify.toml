@@ -1,0 +1,21 @@
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# To connect Netlify to your deployed Flask backend (e.g., Render/Railway/Fly.io),
+# uncomment the block below and replace with your backend URL:
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://your-backend-url.onrender.com/api/:splat"
+#   status = 200
+#   force = true
+
+# SPA fallback for React Router
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
