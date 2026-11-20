@@ -23,6 +23,7 @@ function Dashboard() {
   const [myCost, setMyCost] = useState(0);
   const [myBalance, setMyBalance] = useState(0);
   const [bazarDates, setBazarDates] = useState([]);
+  const [memberSearch, setMemberSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -242,65 +243,92 @@ function Dashboard() {
     return <div className="page message error">{error}</div>;
   }
 
+  const filteredMembers = membersWithDetails.filter((member) =>
+    (member['Name'] || '').toLowerCase().includes(memberSearch.trim().toLowerCase())
+  );
+
   return (
     <div className="page" ref={contentRef}>
-      <h1><FaTachometerAlt /> Dashboard</h1>
-      {messName && (
-        <div className="mess-details-card fade-in-up">
-          <h2><FaHome /> Mess: {messName} (Manager: {messManager})</h2>
+      <div className="dashboard-hero fade-in-up">
+        <div className="dashboard-hero-info">
+          <div className="dashboard-title-row">
+            <h1><FaTachometerAlt /> Dashboard</h1>
+            {currentUser && <span className="role-pill">{currentUser.Role}</span>}
+          </div>
+          {messName && (
+            <p className="dashboard-mess-subtitle">
+              <FaHome /> <strong>{messName}</strong> &middot; Manager: <strong>{messManager}</strong>
+              {currentUser && <> &middot; Hi, <strong>{currentUser.Username}</strong></>}
+            </p>
+          )}
         </div>
-      )}
-      <div className="dashboard-header-bar">
-        <div className="quick-actions">
-          <Link to="/add-meal" className="quick-action-btn"><FaPlus /> Add Meal</Link>
-          <Link to="/add-cost" className="quick-action-btn"><FaShoppingCart /> Add Cost</Link>
-          <Link to="/add-deposit" className="quick-action-btn"><FaPiggyBank /> Add Deposit</Link>
-        </div>
-        <div className="dashboard-options">
-          <button onClick={handleDownloadPdf} className="btn-export"><FaFilePdf /> Export PDF</button>
-          <button onClick={handleExportExcel} className="btn-export"><FaFileExcel /> Export Excel</button>
+        <div className="dashboard-hero-actions">
+          <div className="quick-actions">
+            <Link to="/add-meal" className="quick-action-btn"><FaPlus /> Meal</Link>
+            <Link to="/add-cost" className="quick-action-btn"><FaShoppingCart /> Cost</Link>
+            <Link to="/add-deposit" className="quick-action-btn"><FaPiggyBank /> Deposit</Link>
+          </div>
+          <div className="dashboard-options">
+            <button onClick={handleDownloadPdf} className="btn-export"><FaFilePdf /> PDF</button>
+            <button onClick={handleExportExcel} className="btn-export"><FaFileExcel /> Excel</button>
+          </div>
         </div>
       </div>
-      {currentUser && (
-        <div className="welcome-banner">
-          <span>Welcome back, <strong>{currentUser.Username}</strong></span>
-          <span className="role-pill">{currentUser.Role}</span>
-        </div>
-      )}
+
       <div className="dashboard-summary">
-        <div className="summary-card fade-in-up">
-          <h3><FaBalanceScale /> Mess Balance</h3>
+        <div className="summary-card kpi-emerald fade-in-up">
+          <div className="kpi-header">
+            <span className="kpi-icon"><FaBalanceScale /></span>
+            <h3>Mess Balance</h3>
+          </div>
           <p>{messBalance}</p>
         </div>
-        <div className="summary-card fade-in-up">
-          <h3><FaMoneyBillWave /> Total Deposit</h3>
+        <div className="summary-card kpi-blue fade-in-up">
+          <div className="kpi-header">
+            <span className="kpi-icon"><FaMoneyBillWave /></span>
+            <h3>Total Deposit</h3>
+          </div>
           <p>
-            {currentUser && currentUser['Member ID'] && (
-              <Link to={`/active-month-details/${currentUser['Member ID']}?highlightDeposit=true`}>
+            {currentUser && currentUser['Member ID'] ? (
+              <Link className="kpi-link" to={`/active-month-details/${currentUser['Member ID']}?highlightDeposit=true`}>
                 {totalDeposit}
               </Link>
-            )}
-            {(!currentUser || !currentUser['Member ID']) && totalDeposit}
+            ) : totalDeposit}
           </p>
         </div>
-        <div className="summary-card fade-in-up">
-          <h3><FaUtensils /> Total Meal</h3>
-          <p><Link to="/active-month-details">{totalMeal}</Link></p>
+        <div className="summary-card kpi-emerald fade-in-up">
+          <div className="kpi-header">
+            <span className="kpi-icon"><FaUtensils /></span>
+            <h3>Total Meal</h3>
+          </div>
+          <p><Link className="kpi-link" to="/active-month-details">{totalMeal}</Link></p>
         </div>
-        <div className="summary-card fade-in-up">
-          <h3><FaMoneyBillAlt /> Total Meal Cost</h3>
+        <div className="summary-card kpi-amber fade-in-up">
+          <div className="kpi-header">
+            <span className="kpi-icon"><FaMoneyBillAlt /></span>
+            <h3>Total Meal Cost</h3>
+          </div>
           <p>{totalMealCost}</p>
         </div>
-        <div className="summary-card fade-in-up">
-          <h3><FaChartLine /> Meal Rate</h3>
+        <div className="summary-card kpi-blue fade-in-up">
+          <div className="kpi-header">
+            <span className="kpi-icon"><FaChartLine /></span>
+            <h3>Meal Rate</h3>
+          </div>
           <p>{mealRate}</p>
         </div>
-        <div className="summary-card fade-in-up">
-          <h3><FaUserCircle /> Total Individual Other Cost</h3>
+        <div className="summary-card kpi-amber fade-in-up">
+          <div className="kpi-header">
+            <span className="kpi-icon"><FaUserCircle /></span>
+            <h3>Individual Cost</h3>
+          </div>
           <p>{totalIndividualOtherCost}</p>
         </div>
-        <div className="summary-card fade-in-up">
-          <h3><FaUsers /> Total Shared Other Cost</h3>
+        <div className="summary-card kpi-blue fade-in-up">
+          <div className="kpi-header">
+            <span className="kpi-icon"><FaUsers /></span>
+            <h3>Shared Cost</h3>
+          </div>
           <p>{totalSharedOtherCost}</p>
         </div>
       </div>
@@ -346,7 +374,17 @@ function Dashboard() {
         </div>
       </div>
       <div className="all-member-info">
-        <h2><FaUsers /> All Member Info</h2>
+        <div className="section-header-row">
+          <h2><FaUsers /> All Member Info <span className="count-pill">{filteredMembers.length}</span></h2>
+          <input
+            type="search"
+            className="section-search-input"
+            placeholder="Search member..."
+            value={memberSearch}
+            onChange={(e) => setMemberSearch(e.target.value)}
+            aria-label="Search members"
+          />
+        </div>
         <table>
           <thead>
             <tr>
@@ -361,10 +399,10 @@ function Dashboard() {
             </tr>
           </thead>
           <tbody>
-            {membersWithDetails.map((member) => (
+            {filteredMembers.map((member) => (
               <tr key={member['Member ID']} className="fade-in">
-                <td data-label="Name">{member['Name']}</td>
-                <td data-label="Total Meal"><Link to={`/active-month-details/${member['Member ID']}`}>{member.totalMeals}</Link></td>
+                <td data-label="Name"><strong>{member['Name']}</strong></td>
+                <td data-label="Total Meal"><Link className="meal-pill-link" to={`/active-month-details/${member['Member ID']}`}>{member.totalMeals}</Link></td>
                 <td data-label="Total Deposit">{member.totalDeposit}</td>
                 <td data-label="Meal Cost">{member.mealCost.toFixed(2)}</td>
                 <td data-label="Shared Cost">{member.sharedCost.toFixed(2)}</td>
@@ -381,7 +419,9 @@ function Dashboard() {
         </table>
       </div>
       <div className="other-costs-info">
-        <h2><FaMoneyBill /> Cost info</h2>
+        <div className="section-header-row">
+          <h2><FaMoneyBill /> Cost Info <span className="count-pill">{otherCosts.length}</span></h2>
+        </div>
         <table className="other-costs-table">
           <thead>
             <tr>
