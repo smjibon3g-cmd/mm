@@ -216,7 +216,7 @@ function Dashboard() {
         if (currentUserMemberDetails) {
           setMyTotalMeal(currentUserMemberDetails.totalMeals);
           setMyDeposit(currentUserMemberDetails.totalDeposit);
-          setMyCost(currentUserMemberDetails.totalCost);
+          setMyCost(currentUserMemberDetails.mealCost);
           setMyBalance(currentUserMemberDetails.balance);
         }
 
