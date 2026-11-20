@@ -10,9 +10,9 @@
     --shadow-color: rgba(0, 0, 0, 0.1);
     --success-color: #4CAF50;
     --error-color: #f44336;
-    --font-sm: 0.875rem; /* 14px: labels, table headers, badges, secondary text */
-    --font-md: 1rem;     /* 16px: body, inputs, buttons, table cells, links */
-    --font-lg: 1.5rem;   /* 24px: headings and key metrics */
+    --font-sm: clamp(0.75rem, 2.5vw, 0.875rem); /* 12px mobile -> 14px desktop */
+    --font-md: clamp(0.875rem, 3vw, 1rem);      /* 14px mobile -> 16px desktop */
+    --font-lg: clamp(1.125rem, 4.5vw, 1.5rem);  /* 18px mobile -> 24px desktop */
 }
 
 *, *::before, *::after {
@@ -752,17 +752,29 @@ button:hover, .btn-primary:hover {
   }
 
   .main-content {
-    padding: 14px;
+    padding: 10px;
   }
 
   .page {
-    padding: 18px 14px;
+    padding: 14px 10px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .personal-info,
+  .personal-info-card,
+  .bazar-dates,
+  .summary-card,
+  .mess-info-card {
+    padding: 14px 12px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .page h1 {
     font-size: var(--font-lg);
-    margin-bottom: 18px;
-    padding-bottom: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
     flex-wrap: wrap;
   }
 
@@ -771,7 +783,7 @@ button:hover, .btn-primary:hover {
   }
 
   form {
-    padding: 15px;
+    padding: 12px;
     max-width: 100%;
   }
 
@@ -788,8 +800,17 @@ button:hover, .btn-primary:hover {
   .details-section th, .details-section td,
   .all-member-list th, .all-member-list td,
   .other-costs-table th, .other-costs-table td {
-    padding: 8px 10px;
+    padding: 6px 5px;
     font-size: var(--font-sm);
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .meal-form input[type="number"] {
+    width: 100%;
+    min-width: 48px;
+    padding: 6px 4px;
   }
 
   .auth-card {
