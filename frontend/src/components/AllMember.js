@@ -111,10 +111,10 @@ function AllMember() {
           <tbody>
             {members.map((member) => (
               <tr key={member['Member ID']}>
-                <td>{member['Name']}</td>
-                <td>{member['Email']}</td>
-                <td>{member['Role']}</td>
-                <td>
+                <td data-label="Name">{member['Name']}</td>
+                <td data-label="Email">{member['Email']}</td>
+                <td data-label="Role">{member['Role']}</td>
+                <td data-label="Action">
                   {isManager && member['Role'] !== 'mess manager' && (
                     <button onClick={() => handleElectManager(member['User ID'])} disabled={electingManager}>
                       {electingManager ? 'Electing...' : 'Make Manager'}

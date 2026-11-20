@@ -795,16 +795,83 @@ button:hover, .btn-primary:hover {
     flex: 1 1 100%;
   }
 
-  .all-member-info th, .all-member-info td,
-  .meal-form th, .meal-form td,
-  .details-section th, .details-section td,
-  .all-member-list th, .all-member-list td,
-  .other-costs-table th, .other-costs-table td {
-    padding: 6px 5px;
+  .all-member-info table,
+  .other-costs-table,
+  .all-member-list table {
+    border-collapse: separate;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .all-member-info thead,
+  .other-costs-table thead,
+  .all-member-list thead {
+    display: none;
+  }
+
+  .all-member-info tbody,
+  .other-costs-table tbody,
+  .all-member-list tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .all-member-info tr,
+  .other-costs-table tr,
+  .all-member-list tr {
+    display: block;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-background);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    padding: 6px 10px;
+  }
+
+  .all-member-info tr:hover,
+  .other-costs-table tr:hover,
+  .all-member-list tr:hover {
+    transform: none;
+  }
+
+  .all-member-info td,
+  .other-costs-table td,
+  .all-member-list td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    border: none;
+    border-bottom: 1px solid #eee;
+    padding: 8px 4px;
+    text-align: right;
     font-size: var(--font-sm);
     white-space: normal;
-    word-break: break-word;
-    overflow-wrap: anywhere;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .all-member-info td:last-child,
+  .other-costs-table td:last-child,
+  .all-member-list td:last-child {
+    border-bottom: none;
+  }
+
+  .all-member-info td::before,
+  .other-costs-table td::before,
+  .all-member-list td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--primary-color);
+    text-align: left;
+    flex-shrink: 0;
+  }
+
+  .meal-form th, .meal-form td,
+  .details-section th, .details-section td {
+    padding: 8px 10px;
+    font-size: var(--font-sm);
+    white-space: nowrap;
   }
 
   .meal-form input[type="number"] {

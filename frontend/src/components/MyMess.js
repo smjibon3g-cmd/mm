@@ -192,13 +192,13 @@ function MyMess() {
           <tbody>
             {members.map((member) => (
               <tr key={member['Member ID']}>
-                <td>{member['Name']}</td>
-                <td>{member['Email']}</td>
-                <td>{member['Phone']}</td>
-                <td>{member['Join Date']}</td>
-                <td>{member['Status']}</td>
-                <td>{member['Role']}</td>
-                {currentUser && currentUser.Role === 'mess manager' && <td>{member['Password']}</td>}
+                <td data-label="Name">{member['Name']}</td>
+                <td data-label="Email">{member['Email']}</td>
+                <td data-label="Phone">{member['Phone']}</td>
+                <td data-label="Join Date">{member['Join Date']}</td>
+                <td data-label="Status">{member['Status']}</td>
+                <td data-label="Role">{member['Role']}</td>
+                {currentUser && currentUser.Role === 'mess manager' && <td data-label="Password">{member['Password']}</td>}
               </tr>
             ))}
           </tbody>

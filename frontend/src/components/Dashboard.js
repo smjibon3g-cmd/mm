@@ -346,14 +346,14 @@ function Dashboard() {
           <tbody>
             {membersWithDetails.map((member) => (
               <tr key={member['Member ID']} className="fade-in">
-                <td>{member['Name']}</td>
-                <td><Link to={`/active-month-details/${member['Member ID']}`}>{member.totalMeals}</Link></td>
-                <td>{member.totalDeposit}</td>
-                <td>{member.mealCost.toFixed(2)}</td>
-                <td>{member.sharedCost.toFixed(2)}</td>
-                <td>{member.individualCost}</td>
-                <td>{member.totalCost.toFixed(2)}</td>
-                <td>{member.balance.toFixed(2)}</td>
+                <td data-label="Name">{member['Name']}</td>
+                <td data-label="Total Meal"><Link to={`/active-month-details/${member['Member ID']}`}>{member.totalMeals}</Link></td>
+                <td data-label="Total Deposit">{member.totalDeposit}</td>
+                <td data-label="Meal Cost">{member.mealCost.toFixed(2)}</td>
+                <td data-label="Shared Cost">{member.sharedCost.toFixed(2)}</td>
+                <td data-label="Individual Cost">{member.individualCost}</td>
+                <td data-label="Total Cost">{member.totalCost.toFixed(2)}</td>
+                <td data-label="Balance">{member.balance.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
@@ -374,11 +374,11 @@ function Dashboard() {
           <tbody>
             {otherCosts.map((cost, index) => (
               <tr key={index}>
-                <td>{formatDate(cost['Date'])}</td>
-                <td>{cost['Description']}</td>
-                <td>{cost['Amount']}</td>
-                <td>{cost['Category']}</td>
-                <td>{membersWithDetails.find(m => m['Member ID'] === cost['Paid By Member ID'])?.Name}</td>
+                <td data-label="Date">{formatDate(cost['Date'])}</td>
+                <td data-label="Description">{cost['Description']}</td>
+                <td data-label="Amount">{cost['Amount']}</td>
+                <td data-label="Category">{cost['Category']}</td>
+                <td data-label="Paid By">{membersWithDetails.find(m => m['Member ID'] === cost['Paid By Member ID'])?.Name}</td>
               </tr>
             ))}
           </tbody>
