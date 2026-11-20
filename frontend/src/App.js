@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, Link, useLocation } from 'react-router-dom';
+import { FaHome } from 'react-icons/fa';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
@@ -18,6 +19,20 @@ import Profile from './components/Profile';
 import Sidebar from './components/Sidebar';
 import PreviousMonthDetails from './components/PreviousMonthDetails';
 import './App.css';
+
+function TopHomeBar() {
+  const location = useLocation();
+  if (location.pathname === '/dashboard') {
+    return null;
+  }
+  return (
+    <div className="top-home-bar">
+      <Link to="/dashboard" className="top-home-btn">
+        <FaHome /> <span>Dashboard / Home</span>
+      </Link>
+    </div>
+  );
+}
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -58,6 +73,7 @@ function App() {
       <div className="app-container">
         {isAuthenticated && <Sidebar />}
         <main className="main-content">
+          {isAuthenticated && <TopHomeBar />}
           <Routes>
             <Route 
               path="/login" 

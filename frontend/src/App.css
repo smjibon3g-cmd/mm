@@ -1052,6 +1052,35 @@ button:hover, .btn-primary:hover {
   color: #ffffff;
 }
 
+/* Global Top Home / Dashboard Bar */
+.top-home-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.top-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background-color: var(--card-background);
+  color: var(--primary-dark);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 6px var(--shadow-color);
+  text-decoration: none;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.top-home-btn:hover {
+  background-color: var(--primary-soft);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+}
+
 /* Scrollable table containers */
 .all-member-info,
 .meal-form,
