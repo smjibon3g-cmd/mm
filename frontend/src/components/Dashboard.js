@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import LoadingSpinner from './LoadingSpinner';
 import { FaBalanceScale, FaMoneyBillWave, FaUtensils, FaMoneyBillAlt, FaChartLine, FaUserCircle, FaUsers, FaUser, FaCalendarAlt, FaMoneyBill, FaHome, FaTachometerAlt } from 'react-icons/fa';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
+import { exportElementToPdf } from '../utils/exportPdf';
 
 function Dashboard() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -35,41 +34,7 @@ function Dashboard() {
   const contentRef = useRef();
 
   const handleDownloadPdf = () => {
-    const input = contentRef.current;
-    html2canvas(input, { scrollY: -window.scrollY, scale: 3 }).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
-      const ratio = canvasWidth / pdfWidth;
-      const height = canvasHeight / ratio;
-
-      if (height > pdfHeight) {
-        let pageHeight = pdfHeight;
-        let totalPages = Math.ceil(height / pageHeight);
-
-        for (let i = 0; i < totalPages; i++) {
-          let y = i * pageHeight;
-          let h = Math.min(pageHeight, height - y);
-          let pageCanvas = document.createElement('canvas');
-          pageCanvas.width = canvasWidth;
-          pageCanvas.height = h * ratio;
-          let pageCtx = pageCanvas.getContext('2d');
-          pageCtx.drawImage(canvas, 0, y * ratio, canvasWidth, h * ratio, 0, 0, canvasWidth, h * ratio);
-
-          if (i > 0) {
-            pdf.addPage();
-          }
-          pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, h);
-        }
-      } else {
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, height);
-      }
-
-      pdf.save('dashboard.pdf');
-    });
+    exportElementToPdf(contentRef.current, 'dashboard.pdf');
   };
 
   const handleExportExcel = () => {

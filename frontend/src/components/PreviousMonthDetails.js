@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import LoadingSpinner from './LoadingSpinner';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
+import { exportElementToPdf } from '../utils/exportPdf';
 
 function PreviousMonthDetails() {
   const [months, setMonths] = useState([]);
@@ -214,42 +213,7 @@ function PreviousMonthDetails() {
   };
 
   const handleDownloadPdf = () => {
-    const input = contentRef.current;
-    html2canvas(input, { scrollY: -window.scrollY }).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
-      const ratio = canvasWidth / pdfWidth;
-      const height = canvasHeight / ratio;
-      let position = 0;
-
-      if (height > pdfHeight) {
-        let pageHeight = pdfHeight;
-        let totalPages = Math.ceil(height / pageHeight);
-
-        for (let i = 0; i < totalPages; i++) {
-          let y = i * pageHeight;
-          let h = Math.min(pageHeight, height - y);
-          let pageCanvas = document.createElement('canvas');
-          pageCanvas.width = canvasWidth;
-          pageCanvas.height = h * ratio;
-          let pageCtx = pageCanvas.getContext('2d');
-          pageCtx.drawImage(canvas, 0, y * ratio, canvasWidth, h * ratio, 0, 0, canvasWidth, h * ratio);
-
-          if (i > 0) {
-            pdf.addPage();
-          }
-          pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, h);
-        }
-      } else {
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, height);
-      }
-
-      pdf.save(`previous-month-details-${selectedMonth}.pdf`);
-    });
+    exportElementToPdf(contentRef.current, `previous-month-details-${selectedMonth}.pdf`);
   };
 
   if (loading) {
