@@ -63,35 +63,51 @@ function Sidebar() {
         <div className="sidebar-header">
           <h2>Mess Manager</h2>
         </div>
-      <ul className="sidebar-menu">
-        <li><Link to="/dashboard" className={`sidebar-link ${location.pathname === '/dashboard' ? 'active' : ''}`}><FaTachometerAlt /> <span>Dashboard</span></Link></li>
-        {!hasMess && (
-          <li><Link to="/create-mess" className={`sidebar-link ${location.pathname === '/create-mess' ? 'active' : ''}`}><FaPlusCircle /> <span>Create a Mess</span></Link></li>
+        {currentUser && (
+          <div className="sidebar-user-card">
+            <div className="sidebar-avatar">
+              {(currentUser.Username || 'U').charAt(0).toUpperCase()}
+            </div>
+            <div className="sidebar-user-meta">
+              <span className="sidebar-username">{currentUser.Username}</span>
+              <span className="sidebar-role-badge">{currentUser.Role || 'user'}</span>
+            </div>
+          </div>
         )}
-        {hasMess && (
-          <li><Link to="/my-mess" className={`sidebar-link ${location.pathname === '/my-mess' ? 'active' : ''}`}><FaHome /> <span>My Mess</span></Link></li>
-        )}
-        <li><Link to="/add-member-to-mess" className={`sidebar-link ${location.pathname === '/add-member-to-mess' ? 'active' : ''}`}><FaUserPlus /> <span>Add Member to Mess</span></Link></li>
-        
-        <li><Link to="/add-deposit" className={`sidebar-link ${location.pathname === '/add-deposit' ? 'active' : ''}`}><FaPiggyBank /> <span>Add Deposit</span></Link></li>
-        <li><Link to="/add-meal" className={`sidebar-link ${location.pathname === '/add-meal' ? 'active' : ''}`}><FaUtensils /> <span>Add Meal</span></Link></li>
-        <li><Link to="/add-cost" className={`sidebar-link ${location.pathname === '/add-cost' ? 'active' : ''}`}><FaShoppingCart /> <span>Add Cost</span></Link></li>
-        <li><Link to="/add-bazar-date" className={`sidebar-link ${location.pathname === '/add-bazar-date' ? 'active' : ''}`}><FaCalendarAlt /> <span>Add Bazar Date</span></Link></li>
-        <li><Link to="/active-month-details" className={`sidebar-link ${location.pathname === '/active-month-details' ? 'active' : ''}`}><FaCalendarAlt /> <span>Active Month Details</span></Link></li>
-        <li><Link to="/previous-month-details" className={`sidebar-link ${location.pathname === '/previous-month-details' ? 'active' : ''}`}><FaCalendarAlt /> <span>Previous Month Details</span></Link></li>
-        <li><Link to="/all-member" className={`sidebar-link ${location.pathname === '/all-member' ? 'active' : ''}`}><FaUsers /> <span>All Member</span></Link></li>
-        <li>
-          <Link to="/notifications" className={`sidebar-link ${location.pathname === '/notifications' ? 'active' : ''}`}>
-            <FaBell /> 
-            <span>Notifications</span>
-            <NotificationBadge />
-          </Link>
-        </li>
-        
-        <li><Link to="/profile" className={`sidebar-link ${location.pathname === '/profile' ? 'active' : ''}`}><FaUserCircle /> <span>Profile</span></Link></li>
-        <li><button onClick={handleLogout} className="sidebar-button sidebar-link"><FaSignOutAlt /> <span>Logout</span></button></li>
-      </ul>
-    </aside>
+        <ul className="sidebar-menu">
+          <li className="sidebar-section-label">Overview</li>
+          <li><Link to="/dashboard" className={`sidebar-link ${location.pathname === '/dashboard' ? 'active' : ''}`}><FaTachometerAlt /> <span>Dashboard</span></Link></li>
+          {!hasMess && (
+            <li><Link to="/create-mess" className={`sidebar-link ${location.pathname === '/create-mess' ? 'active' : ''}`}><FaPlusCircle /> <span>Create a Mess</span></Link></li>
+          )}
+          {hasMess && (
+            <li><Link to="/my-mess" className={`sidebar-link ${location.pathname === '/my-mess' ? 'active' : ''}`}><FaHome /> <span>My Mess</span></Link></li>
+          )}
+          <li>
+            <Link to="/notifications" className={`sidebar-link ${location.pathname === '/notifications' ? 'active' : ''}`}>
+              <FaBell />
+              <span>Notifications</span>
+              <NotificationBadge />
+            </Link>
+          </li>
+
+          <li className="sidebar-section-label">Daily Entry</li>
+          <li><Link to="/add-meal" className={`sidebar-link ${location.pathname === '/add-meal' ? 'active' : ''}`}><FaUtensils /> <span>Add Meal</span></Link></li>
+          <li><Link to="/add-cost" className={`sidebar-link ${location.pathname === '/add-cost' ? 'active' : ''}`}><FaShoppingCart /> <span>Add Cost</span></Link></li>
+          <li><Link to="/add-deposit" className={`sidebar-link ${location.pathname === '/add-deposit' ? 'active' : ''}`}><FaPiggyBank /> <span>Add Deposit</span></Link></li>
+          <li><Link to="/add-bazar-date" className={`sidebar-link ${location.pathname === '/add-bazar-date' ? 'active' : ''}`}><FaCalendarAlt /> <span>Add Bazar Date</span></Link></li>
+
+          <li className="sidebar-section-label">Reports & Members</li>
+          <li><Link to="/active-month-details" className={`sidebar-link ${location.pathname === '/active-month-details' ? 'active' : ''}`}><FaCalendarAlt /> <span>Active Month</span></Link></li>
+          <li><Link to="/previous-month-details" className={`sidebar-link ${location.pathname === '/previous-month-details' ? 'active' : ''}`}><FaCalendarAlt /> <span>Previous Month</span></Link></li>
+          <li><Link to="/all-member" className={`sidebar-link ${location.pathname === '/all-member' ? 'active' : ''}`}><FaUsers /> <span>All Members</span></Link></li>
+          <li><Link to="/add-member-to-mess" className={`sidebar-link ${location.pathname === '/add-member-to-mess' ? 'active' : ''}`}><FaUserPlus /> <span>Add Member</span></Link></li>
+
+          <li className="sidebar-section-label">Account</li>
+          <li><Link to="/profile" className={`sidebar-link ${location.pathname === '/profile' ? 'active' : ''}`}><FaUserCircle /> <span>Profile</span></Link></li>
+          <li><button onClick={handleLogout} className="sidebar-button sidebar-link sidebar-logout"><FaSignOutAlt /> <span>Logout</span></button></li>
+        </ul>
+      </aside>
     </>
   );
 }

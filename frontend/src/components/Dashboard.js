@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import LoadingSpinner from './LoadingSpinner';
-import { FaBalanceScale, FaMoneyBillWave, FaUtensils, FaMoneyBillAlt, FaChartLine, FaUserCircle, FaUsers, FaUser, FaCalendarAlt, FaMoneyBill, FaHome, FaTachometerAlt } from 'react-icons/fa';
+import { FaBalanceScale, FaMoneyBillWave, FaUtensils, FaMoneyBillAlt, FaChartLine, FaUserCircle, FaUsers, FaUser, FaCalendarAlt, FaMoneyBill, FaHome, FaTachometerAlt, FaFilePdf, FaFileExcel, FaPlus, FaShoppingCart, FaPiggyBank } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import { exportElementToPdf } from '../utils/exportPdf';
 
@@ -250,11 +250,23 @@ function Dashboard() {
           <h2><FaHome /> Mess: {messName} (Manager: {messManager})</h2>
         </div>
       )}
-      <div className="dashboard-options">
-        <button onClick={handleDownloadPdf}>Download Pdf</button>
-        <button onClick={handleExportExcel}>Export Excel</button>
+      <div className="dashboard-header-bar">
+        <div className="quick-actions">
+          <Link to="/add-meal" className="quick-action-btn"><FaPlus /> Add Meal</Link>
+          <Link to="/add-cost" className="quick-action-btn"><FaShoppingCart /> Add Cost</Link>
+          <Link to="/add-deposit" className="quick-action-btn"><FaPiggyBank /> Add Deposit</Link>
+        </div>
+        <div className="dashboard-options">
+          <button onClick={handleDownloadPdf} className="btn-export"><FaFilePdf /> Export PDF</button>
+          <button onClick={handleExportExcel} className="btn-export"><FaFileExcel /> Export Excel</button>
+        </div>
       </div>
-      {currentUser && <p>Welcome, {currentUser.Username}! Your role: {currentUser.Role}</p>}
+      {currentUser && (
+        <div className="welcome-banner">
+          <span>Welcome back, <strong>{currentUser.Username}</strong></span>
+          <span className="role-pill">{currentUser.Role}</span>
+        </div>
+      )}
       <div className="dashboard-summary">
         <div className="summary-card fade-in-up">
           <h3><FaBalanceScale /> Mess Balance</h3>
@@ -295,14 +307,19 @@ function Dashboard() {
       <div className="dashboard-details">
         <div className="personal-info-card">
           <h2><FaUser /> My Personal Info</h2>
-          <p>My Total Meal: {myTotalMeal}</p>
-          <p>My Deposit: {myDeposit}</p>
-          <p>My Cost: {myCost.toFixed(2)}</p>
-          <p>My Balance: {myBalance.toFixed(2)}</p>
+          <div className="info-row"><span>My Total Meal</span><strong>{myTotalMeal}</strong></div>
+          <div className="info-row"><span>My Deposit</span><strong>{myDeposit}</strong></div>
+          <div className="info-row"><span>My Cost</span><strong>{myCost.toFixed(2)}</strong></div>
+          <div className="info-row">
+            <span>My Balance</span>
+            <span className={`balance-badge ${myBalance >= 0 ? 'positive' : 'negative'}`}>
+              {myBalance >= 0 ? '+' : ''}{myBalance.toFixed(2)}
+            </span>
+          </div>
         </div>
         <div className="bazar-dates">
           <h2><FaCalendarAlt /> My Bazar Date</h2>
-          <ul>
+          <ul className="bazar-list">
             {bazarDates.length > 0 ? (
               Object.entries(bazarDates.filter(bazarDate => bazarDate['Member ID'] === currentUser['Member ID']).reduce((acc, bazarDate) => {
                 const memberId = bazarDate['Member ID'];
@@ -353,7 +370,11 @@ function Dashboard() {
                 <td data-label="Shared Cost">{member.sharedCost.toFixed(2)}</td>
                 <td data-label="Individual Cost">{member.individualCost}</td>
                 <td data-label="Total Cost">{member.totalCost.toFixed(2)}</td>
-                <td data-label="Balance">{member.balance.toFixed(2)}</td>
+                <td data-label="Balance">
+                  <span className={`balance-badge ${member.balance >= 0 ? 'positive' : 'negative'}`}>
+                    {member.balance >= 0 ? '+' : ''}{member.balance.toFixed(2)}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>

@@ -171,13 +171,14 @@ body {
 form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    max-width: 500px; /* Adjust as needed */
-    margin: 0 auto; /* Center forms */
-    padding: 20px;
+    gap: 16px;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background-color: var(--background-color);
+    border-radius: 12px;
+    background-color: var(--card-background);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .input-group {
@@ -674,6 +675,201 @@ button:hover, .btn-primary:hover {
 .personal-info-card p {
   font-size: var(--font-md);
   margin: 10px 0;
+}
+
+/* Sidebar User Profile & Sections */
+.sidebar-user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+}
+
+.sidebar-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: #ffffff;
+  font-weight: 700;
+  font-size: var(--font-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-user-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebar-username {
+  font-weight: 600;
+  font-size: var(--font-md);
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-role-badge {
+  font-size: var(--font-sm);
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.sidebar-section-label {
+  font-size: var(--font-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 10px 14px 4px;
+  margin-top: 6px;
+  margin-bottom: 2px;
+}
+
+.sidebar-logout:hover {
+  background-color: #fef2f2 !important;
+  color: var(--error-color) !important;
+}
+
+/* Dashboard Header, Quick Actions & Welcome Banner */
+.dashboard-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.quick-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: #ffffff;
+  text-decoration: none;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(22, 163, 74, 0.28);
+}
+
+.dashboard-header-bar .dashboard-options {
+  margin-bottom: 0;
+}
+
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 0;
+  font-size: var(--font-sm);
+  padding: 10px 16px;
+  background: var(--card-background) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.btn-export:hover {
+  background: var(--background-color) !important;
+  border-color: var(--secondary-color) !important;
+  color: var(--secondary-color) !important;
+  box-shadow: 0 4px 10px var(--shadow-color);
+}
+
+.welcome-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: var(--font-md);
+}
+
+.role-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background-color: var(--primary-soft);
+  color: var(--primary-dark);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Personal Info Rows & Balance Badges */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--font-md);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.balance-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: var(--font-sm);
+  font-weight: 700;
+}
+
+.balance-badge.positive {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.balance-badge.negative {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.bazar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bazar-list li {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 8px;
+  font-size: var(--font-md);
 }
 
 /* Scrollable table containers */
