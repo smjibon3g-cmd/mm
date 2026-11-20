@@ -12,15 +12,21 @@ CORS(app)
 
 SHEET_ID = os.environ.get("SHEET_ID", "17eQtWRrZOrEacFKlMPCEgdbIsArAF3eYVkMZ0UvN0bY")
 
-@app.route('/')
+@app.route('/', methods=['GET', 'HEAD'])
 def serve_react_app():
-    return app.send_static_file('index.html')
+    index_path = os.path.join(app.static_folder, 'index.html')
+    if os.path.exists(index_path):
+        return app.send_static_file('index.html')
+    return jsonify({'status': 'ok', 'message': 'MessManager API is running'}), 200
 
 @app.errorhandler(404)
 def not_found(e):
     if request.path.startswith('/api/'):
         return jsonify({'error': 'Not found'}), 404
-    return app.send_static_file('index.html')
+    index_path = os.path.join(app.static_folder, 'index.html')
+    if os.path.exists(index_path):
+        return app.send_static_file('index.html')
+    return jsonify({'error': 'Not found'}), 404
 
 @app.route('/api/check_username', methods=['GET'])
 def api_check_username():
