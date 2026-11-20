@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useLocation } from 'react-router-dom'; // Import useLocation
+import { FaEdit } from 'react-icons/fa';
 import LoadingSpinner from './LoadingSpinner';
 import * as XLSX from 'xlsx';
 import { exportElementToPdf } from '../utils/exportPdf';
@@ -16,70 +17,137 @@ function ActiveMonthDetails() {
   const [membersWithDetails, setMembersWithDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editModal, setEditModal] = useState(null);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [statusMessage, setStatusMessage] = useState({ text: '', type: '' });
 
   const formatDate = (dateString) => {
     const [year, month, day] = dateString.split('-');
     return `${day}-${month}-${year}`;
   };
 
+  const fetchActiveMonthData = useCallback(async (userOverride) => {
+    const storedUser = userOverride || JSON.parse(localStorage.getItem('currentUser'));
+    setLoading(true);
+    setError(null);
+
+    if (!storedUser || !storedUser['Mess ID']) {
+      setError('User not associated with a mess.');
+      setLoading(false);
+      return;
+    }
+    const messId = storedUser['Mess ID'];
+
+    try {
+      const [mealsRes, membersRes, depositsRes, costsRes] = await Promise.all([
+        fetch(`/api/meals?mess_id=${messId}`),
+        fetch(`/api/members?mess_id=${messId}`),
+        fetch(`/api/deposits?mess_id=${messId}`),
+        fetch(`/api/costs?mess_id=${messId}`)
+      ]);
+
+      if (!mealsRes.ok || !membersRes.ok || !depositsRes.ok || !costsRes.ok) {
+        throw new Error('Failed to fetch active month data.');
+      }
+
+      const mealsData = await mealsRes.json();
+      const membersData = await membersRes.json();
+      const depositsData = await depositsRes.json();
+      const costsData = await costsRes.json();
+
+      setMeals(mealsData);
+      setMembers(membersData);
+      setDeposits(depositsData);
+      setCosts(costsData);
+
+      const { membersWithDetails } = calculateMessSummary({
+        membersData,
+        mealsData,
+        depositsData,
+        costsData,
+      });
+
+      setMembersWithDetails(membersWithDetails);
+    } catch (err) {
+      console.error('Error fetching active month data:', err);
+      setError('Failed to load active month data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('currentUser'));
     if (storedUser) {
       setCurrentUser(storedUser);
     }
+    fetchActiveMonthData(storedUser);
+  }, [fetchActiveMonthData]);
 
-    const fetchActiveMonthData = async () => {
-      setLoading(true);
-      setError(null);
+  const isManager = currentUser && currentUser.Role === 'mess manager';
 
-      if (!storedUser || !storedUser['Mess ID']) {
-        setError('User not associated with a mess.');
-        setLoading(false);
-        return;
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    if (!editModal || !currentUser) return;
+    setSavingEdit(true);
+    setStatusMessage({ text: '', type: '' });
+
+    try {
+      let url = '';
+      let payload = { updated_by_user_id: currentUser['User ID'] };
+
+      if (editModal.type === 'meal') {
+        const b = parseFloat(editModal.data.Breakfast) || 0;
+        const l = parseFloat(editModal.data.Lunch) || 0;
+        const d = parseFloat(editModal.data.Dinner) || 0;
+        url = `/api/meals/${editModal.id}`;
+        payload = {
+          ...payload,
+          Date: editModal.data.Date,
+          Breakfast: b,
+          Lunch: l,
+          Dinner: d,
+          'Total Meals': b + l + d,
+        };
+      } else if (editModal.type === 'deposit') {
+        url = `/api/deposits/${editModal.id}`;
+        payload = {
+          ...payload,
+          Date: editModal.data.Date,
+          'Member ID': editModal.data['Member ID'],
+          Amount: parseFloat(editModal.data.Amount) || 0,
+        };
+      } else if (editModal.type === 'cost') {
+        url = `/api/costs/${editModal.id}`;
+        payload = {
+          ...payload,
+          Date: editModal.data.Date,
+          Description: editModal.data.Description,
+          Amount: parseFloat(editModal.data.Amount) || 0,
+          'Paid By Member ID': editModal.data['Paid By Member ID'],
+          Category: editModal.data.Category,
+        };
       }
-      const messId = storedUser['Mess ID'];
 
-      try {
-        const [mealsRes, membersRes, depositsRes, costsRes] = await Promise.all([
-          fetch(`/api/meals?mess_id=${messId}`),
-          fetch(`/api/members?mess_id=${messId}`),
-          fetch(`/api/deposits?mess_id=${messId}`), // Fetch deposits
-          fetch(`/api/costs?mess_id=${messId}`)     // Fetch costs
-        ]);
-
-        if (!mealsRes.ok || !membersRes.ok || !depositsRes.ok || !costsRes.ok) {
-          throw new Error('Failed to fetch active month data.');
-        }
-
-        const mealsData = await mealsRes.json();
-        const membersData = await membersRes.json();
-        const depositsData = await depositsRes.json(); // Get deposits data
-        const costsData = await costsRes.json();     // Get costs data
-
-        setMeals(mealsData);
-        setMembers(membersData);
-        setDeposits(depositsData);
-        setCosts(costsData);
-
-        const { membersWithDetails } = calculateMessSummary({
-          membersData,
-          mealsData,
-          depositsData,
-          costsData,
-        });
-
-        setMembersWithDetails(membersWithDetails);
-
-      } catch (err) {
-        console.error('Error fetching active month data:', err);
-        setError('Failed to load active month data. Please try again.');
-      } finally {
-        setLoading(false);
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || 'Failed to save changes.');
       }
-    };
 
-    fetchActiveMonthData();
-  }, []);
+      setEditModal(null);
+      setStatusMessage({ text: 'Entry updated and all mess members have been notified.', type: 'success' });
+      await fetchActiveMonthData(currentUser);
+    } catch (err) {
+      setStatusMessage({ text: err.message || 'Failed to update entry.', type: 'error' });
+    } finally {
+      setSavingEdit(false);
+    }
+  };
 
   const contentRef = useRef();
 
@@ -204,10 +272,11 @@ function ActiveMonthDetails() {
       mealsByDateAndMember[date] = {};
     }
     mealsByDateAndMember[date][memberId] = {
-      breakfast: parseFloat(meal['Breakfast']),
-      lunch: parseFloat(meal['Lunch']),
-      dinner: parseFloat(meal['Dinner']),
-      totalMeals: parseFloat(meal['Total Meals'])
+      mealId: meal['Meal ID'],
+      breakfast: parseFloat(meal['Breakfast']) || 0,
+      lunch: parseFloat(meal['Lunch']) || 0,
+      dinner: parseFloat(meal['Dinner']) || 0,
+      totalMeals: parseFloat(meal['Total Meals']) || 0
     };
   });
 
@@ -242,6 +311,7 @@ function ActiveMonthDetails() {
   return (
     <div className="page" ref={contentRef}>
       <h1>Active Month Details</h1>
+      {statusMessage.text && <div className={`message ${statusMessage.type}`}>{statusMessage.text}</div>}
       <div className="active-month-options">
         <button onClick={handleDownloadPdf}>Download Pdf</button>
         <button onClick={handleExportExcel}>Export Excel</button>
@@ -270,13 +340,38 @@ function ActiveMonthDetails() {
             {uniqueDates.map(date => (
               <tr key={date}>
                 <td>{formatDate(date)}</td>
-                {allMemberIds.map(memberId => (
-                  <React.Fragment key={memberId + '-meals'}>
-                    <td className={memberId === memberIdFromUrl ? 'highlight' : ''}>{mealsByDateAndMember[date][memberId] ? mealsByDateAndMember[date][memberId].breakfast : 0}</td>
-                    <td className={memberId === memberIdFromUrl ? 'highlight' : ''}>{mealsByDateAndMember[date][memberId] ? mealsByDateAndMember[date][memberId].lunch : 0}</td>
-                    <td className={memberId === memberIdFromUrl ? 'highlight' : ''}>{mealsByDateAndMember[date][memberId] ? mealsByDateAndMember[date][memberId].dinner : 0}</td>
-                  </React.Fragment>
-                ))}
+                {allMemberIds.map(memberId => {
+                  const entry = mealsByDateAndMember[date][memberId];
+                  return (
+                    <React.Fragment key={memberId + '-meals'}>
+                      <td className={memberId === memberIdFromUrl ? 'highlight' : ''}>{entry ? entry.breakfast : 0}</td>
+                      <td className={memberId === memberIdFromUrl ? 'highlight' : ''}>{entry ? entry.lunch : 0}</td>
+                      <td className={memberId === memberIdFromUrl ? 'highlight' : ''}>
+                        {entry ? entry.dinner : 0}
+                        {isManager && entry && entry.mealId && (
+                          <button
+                            type="button"
+                            className="inline-edit-btn"
+                            title={`Edit ${memberMap[memberId]}'s meal`}
+                            onClick={() => setEditModal({
+                              type: 'meal',
+                              id: entry.mealId,
+                              title: `Edit Meal — ${memberMap[memberId]} (${formatDate(date)})`,
+                              data: {
+                                Date: date,
+                                Breakfast: entry.breakfast,
+                                Lunch: entry.lunch,
+                                Dinner: entry.dinner,
+                              },
+                            })}
+                          >
+                            <FaEdit />
+                          </button>
+                        )}
+                      </td>
+                    </React.Fragment>
+                  );
+                })}
             </tr>
             ))}
             <tr>
@@ -300,14 +395,35 @@ function ActiveMonthDetails() {
               <th>Date</th>
               <th>Member</th>
               <th>Amount</th>
+              {isManager && <th>Action</th>}
             </tr>
           </thead>
           <tbody>
             {currentMonthDeposits.map((deposit, index) => (
-              <tr key={index} className={highlightDeposit && deposit['Member ID'] === memberIdFromUrl ? 'highlight-deposit' : ''}>
+              <tr key={deposit['Deposit ID'] || index} className={highlightDeposit && deposit['Member ID'] === memberIdFromUrl ? 'highlight-deposit' : ''}>
                 <td>{formatDate(deposit['Date'])}</td>
                 <td>{memberMap[deposit['Member ID']]}</td>
                 <td>{deposit['Amount']}</td>
+                {isManager && (
+                  <td>
+                    <button
+                      type="button"
+                      className="inline-edit-btn"
+                      onClick={() => setEditModal({
+                        type: 'deposit',
+                        id: deposit['Deposit ID'],
+                        title: `Edit Deposit — ${memberMap[deposit['Member ID']]}`,
+                        data: {
+                          Date: deposit['Date'],
+                          'Member ID': deposit['Member ID'],
+                          Amount: deposit['Amount'],
+                        },
+                      })}
+                    >
+                      <FaEdit /> Edit
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -322,15 +438,32 @@ function ActiveMonthDetails() {
               <th>Description</th>
               <th>Amount</th>
               <th>Paid By</th>
+              {isManager && <th>Action</th>}
             </tr>
           </thead>
           <tbody>
             {currentMonthCosts.filter(cost => cost.Category === 'Meal').map((cost, index) => (
-              <tr key={index}>
+              <tr key={cost['Cost ID'] || index}>
                 <td>{formatDate(cost['Date'])}</td>
                 <td>{cost['Description']}</td>
                 <td>{cost['Amount']}</td>
                 <td>{memberMap[cost['Paid By Member ID']]}</td>
+                {isManager && (
+                  <td>
+                    <button
+                      type="button"
+                      className="inline-edit-btn"
+                      onClick={() => setEditModal({
+                        type: 'cost',
+                        id: cost['Cost ID'],
+                        title: 'Edit Meal Cost',
+                        data: { ...cost },
+                      })}
+                    >
+                      <FaEdit /> Edit
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -346,16 +479,33 @@ function ActiveMonthDetails() {
               <th>Amount</th>
               <th>Paid By</th>
               <th>Category</th>
+              {isManager && <th>Action</th>}
             </tr>
           </thead>
           <tbody>
             {currentMonthCosts.filter(cost => cost.Category === 'Individual').map((cost, index) => (
-              <tr key={index}>
+              <tr key={cost['Cost ID'] || index}>
                 <td>{formatDate(cost['Date'])}</td>
                 <td>{cost['Description']}</td>
                 <td>{cost['Amount']}</td>
                 <td>{memberMap[cost['Paid By Member ID']]}</td>
                 <td>{cost['Category']}</td>
+                {isManager && (
+                  <td>
+                    <button
+                      type="button"
+                      className="inline-edit-btn"
+                      onClick={() => setEditModal({
+                        type: 'cost',
+                        id: cost['Cost ID'],
+                        title: 'Edit Individual Cost',
+                        data: { ...cost },
+                      })}
+                    >
+                      <FaEdit /> Edit
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -371,16 +521,33 @@ function ActiveMonthDetails() {
               <th>Amount</th>
               <th>Paid By</th>
               <th>Category</th>
+              {isManager && <th>Action</th>}
             </tr>
           </thead>
           <tbody>
             {currentMonthCosts.filter(cost => cost.Category === 'Shared - Meal Consumers' || cost.Category === 'Shared - All Members').map((cost, index) => (
-              <tr key={index}>
+              <tr key={cost['Cost ID'] || index}>
                 <td>{formatDate(cost['Date'])}</td>
                 <td>{cost['Description']}</td>
                 <td>{cost['Amount']}</td>
                 <td>{memberMap[cost['Paid By Member ID']]}</td>
                 <td>{cost['Category']}</td>
+                {isManager && (
+                  <td>
+                    <button
+                      type="button"
+                      className="inline-edit-btn"
+                      onClick={() => setEditModal({
+                        type: 'cost',
+                        id: cost['Cost ID'],
+                        title: 'Edit Shared Cost',
+                        data: { ...cost },
+                      })}
+                    >
+                      <FaEdit /> Edit
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -417,6 +584,149 @@ function ActiveMonthDetails() {
           </tbody>
         </table>
       </div>
+      {editModal && (
+        <div className="modal-backdrop" onClick={() => !savingEdit && setEditModal(null)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <h2>{editModal.title}</h2>
+            <form onSubmit={handleSaveEdit}>
+              <div className="input-group">
+                <label>Date</label>
+                <input
+                  type="date"
+                  value={editModal.data.Date || ''}
+                  onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, Date: e.target.value } })}
+                  required
+                />
+              </div>
+
+              {editModal.type === 'meal' && (
+                <>
+                  <div className="input-group">
+                    <label>Breakfast</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      value={editModal.data.Breakfast}
+                      onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, Breakfast: e.target.value } })}
+                      required
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label>Lunch</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      value={editModal.data.Lunch}
+                      onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, Lunch: e.target.value } })}
+                      required
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label>Dinner</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      value={editModal.data.Dinner}
+                      onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, Dinner: e.target.value } })}
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              {editModal.type === 'deposit' && (
+                <>
+                  <div className="input-group">
+                    <label>Member</label>
+                    <select
+                      value={editModal.data['Member ID'] || ''}
+                      onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, 'Member ID': e.target.value } })}
+                      required
+                    >
+                      {members.map((m) => (
+                        <option key={m['Member ID']} value={m['Member ID']}>{m['Name']}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="input-group">
+                    <label>Amount</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={editModal.data.Amount}
+                      onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, Amount: e.target.value } })}
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              {editModal.type === 'cost' && (
+                <>
+                  <div className="input-group">
+                    <label>Description</label>
+                    <input
+                      type="text"
+                      value={editModal.data.Description || ''}
+                      onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, Description: e.target.value } })}
+                      required
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label>Amount</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={editModal.data.Amount}
+                      onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, Amount: e.target.value } })}
+                      required
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label>Category</label>
+                    <select
+                      value={editModal.data.Category || ''}
+                      onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, Category: e.target.value } })}
+                      required
+                    >
+                      <option value="Meal">Meal</option>
+                      <option value="Individual">Individual</option>
+                      <option value="Shared - Meal Consumers">Shared - Meal Consumers</option>
+                      <option value="Shared - All Members">Shared - All Members</option>
+                    </select>
+                  </div>
+                  <div className="input-group">
+                    <label>Paid By</label>
+                    <select
+                      value={editModal.data['Paid By Member ID'] || ''}
+                      onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, 'Paid By Member ID': e.target.value } })}
+                    >
+                      <option value="">-- Shared / None --</option>
+                      {members.map((m) => (
+                        <option key={m['Member ID']} value={m['Member ID']}>{m['Name']}</option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
+
+              <div className="modal-actions">
+                <button type="button" className="btn-export" onClick={() => setEditModal(null)} disabled={savingEdit}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={savingEdit}>
+                  {savingEdit ? 'Saving...' : 'Save & Notify All'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

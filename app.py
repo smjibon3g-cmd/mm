@@ -448,11 +448,46 @@ def api_add_meal_request():
         print(f"Error adding meal request to sheet: {e}")
         return jsonify({"success": False, "error": f"Failed to add meal request to database: {str(e)}"}, 500)
 
+def verify_mess_manager(user_id, mess_id):
+    """Return (manager_name, error_response) verifying the user is the mess manager."""
+    if not user_id:
+        return None, None
+    user = get_user_by_id(SHEET_ID, user_id)
+    if not user or user.get('Mess ID') != mess_id or user.get('Role') != 'mess manager':
+        return None, (jsonify({"error": "Only the mess manager can edit entries."}), 403)
+    return user.get('Username', 'Manager'), None
+
+def notify_all_mess_members(mess_id, notif_type, reference_id, message):
+    """Send a notification to every user belonging to the given mess."""
+    all_mess_members = get_members(SHEET_ID, mess_id)
+    now_iso = datetime.datetime.now().isoformat()
+    for member in all_mess_members:
+        user_to_notify = get_user(SHEET_ID, member['Name'])
+        if user_to_notify:
+            notification_data = [
+                str(uuid.uuid4()),
+                user_to_notify['User ID'],
+                mess_id,
+                notif_type,
+                reference_id,
+                message,
+                now_iso,
+                'False'
+            ]
+            add_notification(SHEET_ID, notification_data)
+
+def format_field_changes(old_record, new_data, fields):
+    """Return a human-readable list of 'Field: old -> new' for changed fields."""
+    changes = []
+    for field in fields:
+        if field in new_data and str(new_data[field]) != str(old_record.get(field, '')):
+            changes.append(f"{field}: {old_record.get(field, '')} -> {new_data[field]}")
+    return changes
+
 @app.route('/api/meals/<meal_id>', methods=['PUT'])
 def api_update_meal(meal_id):
-    new_data = request.get_json()
+    new_data = request.get_json() or {}
 
-    # Get existing meal data for notification
     all_meals = get_all_records(SHEET_ID, "Meals")
     meal_to_update = next((m for m in all_meals if m['Meal ID'] == meal_id), None)
 
@@ -460,25 +495,20 @@ def api_update_meal(meal_id):
         return jsonify({"error": "Meal not found"}), 404
 
     mess_id = meal_to_update.get('Mess ID')
+    manager_name, err = verify_mess_manager(new_data.get('updated_by_user_id'), mess_id)
+    if err:
+        return err
+
     update_meal(SHEET_ID, meal_id, new_data)
 
-    # Add notification for the updated meal's member
     members = get_all_records(SHEET_ID, "Members")
     meal_member = next((m for m in members if m['Member ID'] == meal_to_update['Member ID']), None)
-    if meal_member:
-        user_to_notify = get_user(SHEET_ID, meal_member['Name'])
-        if user_to_notify:
-            notification_data = [
-                str(uuid.uuid4()),
-                user_to_notify['User ID'],
-                mess_id,
-                'meal_updated',
-                meal_id,
-                f"Your meal for {meal_to_update['Date']} has been updated.",
-                datetime.datetime.now().isoformat(),
-                'False'
-            ]
-            add_notification(SHEET_ID, notification_data)
+    member_name = meal_member['Name'] if meal_member else 'Unknown'
+    changes = format_field_changes(meal_to_update, new_data, ['Date', 'Breakfast', 'Lunch', 'Dinner', 'Total Meals'])
+    change_summary = ', '.join(changes) if changes else 'values updated'
+    actor = f"Manager {manager_name}" if manager_name else "Mess manager"
+    message = f"{actor} edited meal for {member_name} ({meal_to_update.get('Date')}): {change_summary}."
+    notify_all_mess_members(mess_id, 'meal_updated', meal_id, message)
 
     return jsonify({"success": True})
 
@@ -600,9 +630,8 @@ def api_add_cost():
 
 @app.route('/api/costs/<cost_id>', methods=['PUT'])
 def api_update_cost(cost_id):
-    new_data = request.get_json()
+    new_data = request.get_json() or {}
 
-    # Get existing cost data for notification
     all_costs = get_all_records(SHEET_ID, "Costs")
     cost_to_update = next((c for c in all_costs if c['Cost ID'] == cost_id), None)
 
@@ -610,24 +639,18 @@ def api_update_cost(cost_id):
         return jsonify({"error": "Cost not found"}), 404
 
     mess_id = cost_to_update.get('Mess ID')
+    manager_name, err = verify_mess_manager(new_data.get('updated_by_user_id'), mess_id)
+    if err:
+        return err
+
     update_cost(SHEET_ID, cost_id, new_data)
 
-    # Add notification for all members in the mess
-    all_mess_members = get_members(SHEET_ID, mess_id)
-    for member in all_mess_members:
-        user_to_notify = get_user(SHEET_ID, member['Name'])
-        if user_to_notify:
-            notification_data = [
-                str(uuid.uuid4()),
-                user_to_notify['User ID'],
-                mess_id,
-                'cost_updated',
-                cost_id,
-                f"A cost with description '{new_data.get('Description')}' has been updated.",
-                datetime.datetime.now().isoformat(),
-                'False'
-            ]
-            add_notification(SHEET_ID, notification_data)
+    changes = format_field_changes(cost_to_update, new_data, ['Date', 'Description', 'Amount', 'Category'])
+    change_summary = ', '.join(changes) if changes else 'values updated'
+    actor = f"Manager {manager_name}" if manager_name else "Mess manager"
+    desc = new_data.get('Description') or cost_to_update.get('Description', '')
+    message = f"{actor} edited cost '{desc}' ({cost_to_update.get('Date')}): {change_summary}."
+    notify_all_mess_members(mess_id, 'cost_updated', cost_id, message)
 
     return jsonify({"success": True})
 
@@ -745,9 +768,8 @@ def api_add_deposit():
 
 @app.route('/api/deposits/<deposit_id>', methods=['PUT'])
 def api_update_deposit(deposit_id):
-    new_data = request.get_json()
+    new_data = request.get_json() or {}
 
-    # Get existing deposit data for notification
     all_deposits = get_all_records(SHEET_ID, "Deposits")
     deposit_to_update = next((d for d in all_deposits if d['Deposit ID'] == deposit_id), None)
 
@@ -755,25 +777,20 @@ def api_update_deposit(deposit_id):
         return jsonify({"error": "Deposit not found"}), 404
 
     mess_id = deposit_to_update.get('Mess ID')
+    manager_name, err = verify_mess_manager(new_data.get('updated_by_user_id'), mess_id)
+    if err:
+        return err
+
     update_deposit(SHEET_ID, deposit_id, new_data)
 
-    # Add notification for the updated deposit's member
     members = get_all_records(SHEET_ID, "Members")
     deposit_member = next((m for m in members if m['Member ID'] == deposit_to_update['Member ID']), None)
-    if deposit_member:
-        user_to_notify = get_user(SHEET_ID, deposit_member['Name'])
-        if user_to_notify:
-            notification_data = [
-                str(uuid.uuid4()),
-                user_to_notify['User ID'],
-                mess_id,
-                'deposit_updated',
-                deposit_id,
-                f"Your deposit of {new_data.get('Amount')} has been updated.",
-                datetime.datetime.now().isoformat(),
-                'False'
-            ]
-            add_notification(SHEET_ID, notification_data)
+    member_name = deposit_member['Name'] if deposit_member else 'Unknown'
+    changes = format_field_changes(deposit_to_update, new_data, ['Date', 'Amount'])
+    change_summary = ', '.join(changes) if changes else 'values updated'
+    actor = f"Manager {manager_name}" if manager_name else "Mess manager"
+    message = f"{actor} edited deposit for {member_name} ({deposit_to_update.get('Date')}): {change_summary}."
+    notify_all_mess_members(mess_id, 'deposit_updated', deposit_id, message)
 
     return jsonify({"success": True})
 
