@@ -4,6 +4,7 @@ import LoadingSpinner from './LoadingSpinner';
 import { FaBalanceScale, FaMoneyBillWave, FaUtensils, FaMoneyBillAlt, FaChartLine, FaUserCircle, FaUsers, FaUser, FaCalendarAlt, FaMoneyBill, FaHome, FaTachometerAlt, FaFilePdf, FaFileExcel, FaPlus, FaShoppingCart, FaPiggyBank } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import { exportElementToPdf } from '../utils/exportPdf';
+import { calculateMessSummary } from '../utils/messCalculations';
 
 function Dashboard() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -124,16 +125,6 @@ function Dashboard() {
 
         setBazarDates(bazarDatesData);
 
-        const memberMealTotals = mealsData.reduce((acc, meal) => {
-          const memberId = meal['Member ID'];
-          acc[memberId] = (acc[memberId] || 0) + parseFloat(meal['Total Meals']);
-          return acc;
-        }, {});
-
-        // Identify unique meal consumers
-        const mealConsumers = new Set(mealsData.map(meal => meal['Member ID']));
-        const numberOfMealConsumers = mealConsumers.size;
-
         const manager = membersData.find(m => m.Role === 'mess manager');
         if (manager) {
           setMessManager(manager.Name);
@@ -145,74 +136,26 @@ function Dashboard() {
           throw new Error(messDetailsData.error || 'Failed to fetch mess details');
         }
 
-        const totalDep = depositsData.reduce((acc, dep) => acc + parseFloat(dep['Amount']), 0);
-        setTotalDeposit(totalDep);
-
-        const totalM = mealsData.reduce((acc, meal) => acc + parseFloat(meal['Total Meals']), 0);
-        setTotalMeal(totalM);
-
-        // Separate costs by category
-        const mealCosts = costsData.filter(c => c.Category === 'Meal').reduce((acc, cost) => acc + parseFloat(cost['Amount']), 0);
-        const individualCosts = costsData.filter(c => c.Category === 'Individual').reduce((acc, cost) => acc + parseFloat(cost['Amount']), 0);
-        const sharedMealConsumerCostsTotal = costsData.filter(c => c.Category === 'Shared - Meal Consumers').reduce((acc, cost) => acc + parseFloat(cost['Amount']), 0);
-        const sharedAllMembersCostsTotal = costsData.filter(c => c.Category === 'Shared - All Members').reduce((acc, cost) => acc + parseFloat(cost['Amount']), 0);
-
         const otherCostsData = costsData.filter(c => c.Category !== 'Meal');
         setOtherCosts(otherCostsData);
 
-        setTotalIndividualOtherCost(individualCosts);
-        setTotalSharedOtherCost(sharedMealConsumerCostsTotal + sharedAllMembersCostsTotal); // Sum of both shared types
-
-        setTotalMealCost(mealCosts); // Only meal costs for totalMealCost
-
-        const totalAllCosts = mealCosts + individualCosts + sharedMealConsumerCostsTotal + sharedAllMembersCostsTotal; // Total of all costs
-        
-        const messBal = totalDep - totalAllCosts; // Use totalAllCosts for mess balance
-        setMessBalance(messBal);
-
-        const mealR = totalM > 0 ? mealCosts / totalM : 0; // Meal rate based only on meal costs
-        setMealRate(mealR.toFixed(2));
-
-        // Calculate per-member shared costs
-        const perMemberSharedAllMembersCost = membersData.length > 0 ? sharedAllMembersCostsTotal / membersData.length : 0;
-        const perMemberSharedMealConsumerCost = numberOfMealConsumers > 0 ? sharedMealConsumerCostsTotal / numberOfMealConsumers : 0;
-
-        const membersWithDetails = membersData.map(member => {
-          const memberId = member['Member ID'];
-          const totalMeals = memberMealTotals[memberId] || 0;
-          const mealCost = mealR * totalMeals;
-
-          const totalDeposit = depositsData
-            .filter(dep => dep['Member ID'] === memberId)
-            .reduce((acc, dep) => acc + parseFloat(dep['Amount']), 0);
-
-          const individualCost = costsData
-            .filter(cost => cost.Category === 'Individual' && cost['Paid By Member ID'] === memberId)
-            .reduce((acc, cost) => acc + parseFloat(cost['Amount']), 0);
-
-          let sharedCostForMember = perMemberSharedAllMembersCost;
-          if (mealConsumers.has(memberId)) {
-            sharedCostForMember += perMemberSharedMealConsumerCost;
-          }
-
-          const totalCost = mealCost + individualCost + sharedCostForMember;
-          const balance = totalDeposit - totalCost;
-
-          return {
-            ...member,
-            totalMeals,
-            totalDeposit,
-            mealCost,
-            individualCost,
-            sharedCost: sharedCostForMember, // Use the calculated shared cost for the member
-            totalCost,
-            balance,
-          };
+        const summary = calculateMessSummary({
+          membersData,
+          mealsData,
+          depositsData,
+          costsData,
         });
 
-        setMembersWithDetails(membersWithDetails);
+        setTotalDeposit(summary.totalDeposit);
+        setTotalMeal(summary.totalMeal);
+        setTotalIndividualOtherCost(summary.individualCosts);
+        setTotalSharedOtherCost(summary.totalSharedOtherCost);
+        setTotalMealCost(summary.mealCosts);
+        setMessBalance(Number(summary.messBalance.toFixed(2)));
+        setMealRate(summary.mealRate.toFixed(2));
+        setMembersWithDetails(summary.membersWithDetails);
 
-        const currentUserMemberDetails = membersWithDetails.find(m => m['User ID'] === storedUser['User ID']);
+        const currentUserMemberDetails = summary.membersWithDetails.find(m => m['User ID'] === storedUser['User ID']);
         if (currentUserMemberDetails) {
           setMyTotalMeal(currentUserMemberDetails.totalMeals);
           setMyDeposit(currentUserMemberDetails.totalDeposit);

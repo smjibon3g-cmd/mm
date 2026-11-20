@@ -88,9 +88,9 @@ function AddMeal() {
           mealsOnDate.forEach(meal => {
             const memberId = meal['Member ID'];
             if (updatedMemberMeals[memberId]) {
-              updatedMemberMeals[memberId].breakfast = meal.Breakfast;
-              updatedMemberMeals[memberId].lunch = meal.Lunch;
-              updatedMemberMeals[memberId].dinner = meal.Dinner;
+              updatedMemberMeals[memberId].breakfast = parseFloat(meal.Breakfast) || 0;
+              updatedMemberMeals[memberId].lunch = parseFloat(meal.Lunch) || 0;
+              updatedMemberMeals[memberId].dinner = parseFloat(meal.Dinner) || 0;
             }
           });
 
@@ -136,7 +136,7 @@ function AddMeal() {
     try {
       for (const memberId in memberMeals) {
         const { breakfast, lunch, dinner } = memberMeals[memberId];
-        const totalMeals = breakfast + lunch + dinner;
+        const totalMeals = (parseFloat(breakfast) || 0) + (parseFloat(lunch) || 0) + (parseFloat(dinner) || 0);
 
         if (totalMeals > 0) { // Only add if there's at least one meal
           const newMeal = {
@@ -201,7 +201,7 @@ function AddMeal() {
       return;
     }
 
-    const totalMeals = breakfast + lunch + dinner;
+    const totalMeals = (parseFloat(breakfast) || 0) + (parseFloat(lunch) || 0) + (parseFloat(dinner) || 0);
     const newMeal = {
       "Meal ID": Date.now().toString() + singleMealMember, // Unique ID for each meal entry
       "Date": mealDateSingle,
